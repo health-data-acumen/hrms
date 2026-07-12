@@ -7,6 +7,25 @@ set -euo pipefail
 
 cd /home/frappe/frappe-bench
 
+# The Dokku volume mounted at sites/ shadows what frappe_docker baked in
+# there at image-build time (apps.txt, assets/). Re-sync both from the
+# pristine build-time copy on every start — they're pure build artifacts
+# tied to this image, never user data, so always overwriting is correct
+# and keeps them in sync across upgrades.
+SEED_DIR="/home/frappe/frappe-bench/sites-seed"
+SITES_DIR="/home/frappe/frappe-bench/sites"
+
+if [ -f "$SEED_DIR/apps.txt" ]; then
+  echo "-----> Syncing sites/apps.txt from image"
+  cp "$SEED_DIR/apps.txt" "$SITES_DIR/apps.txt"
+fi
+
+if [ -d "$SEED_DIR/assets" ]; then
+  echo "-----> Syncing sites/assets from image"
+  mkdir -p "$SITES_DIR/assets"
+  cp -r "$SEED_DIR/assets/." "$SITES_DIR/assets/"
+fi
+
 ./scripts/wait-for-services.sh
 
 # release.sh / configure.sh / init-site.sh are the scripts responsible for

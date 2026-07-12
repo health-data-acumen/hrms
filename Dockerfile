@@ -9,6 +9,14 @@ FROM ${BASE_IMAGE}
 
 USER root
 
+# The Dokku persistent volume gets mounted at /home/frappe/frappe-bench/sites
+# at *runtime*, which shadows the apps.txt and assets/ that frappe_docker
+# baked in there at *build* time (bench build runs during image build).
+# Preserve a pristine copy now, while sites/ still has the real build output,
+# so entrypoint.sh can re-seed the (otherwise empty) mounted volume on every
+# container start.
+RUN cp -r /home/frappe/frappe-bench/sites /home/frappe/frappe-bench/sites-seed
+
 COPY --chown=frappe:frappe scripts/ /home/frappe/frappe-bench/scripts/
 COPY --chown=frappe:frappe Procfile /home/frappe/frappe-bench/Procfile
 COPY --chown=frappe:frappe app.json /home/frappe/frappe-bench/app.json
