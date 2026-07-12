@@ -1,0 +1,14 @@
+{
+  "name": "frappe-hrms",
+  "description": "Frappe v16 + ERPNext + HRMS on Dokku, deployed from a prebuilt GHCR image",
+  "_comment": "The env block below is documentation only. Dokku does not read/apply app.json 'env' values automatically for docker-image deploys — set these explicitly with `dokku config:set`. Dokku only executes scripts.dokku.predeploy/postdeploy from this file, neither of which is used in this design (migrations run via the Procfile 'release' process type instead).",
+  "env": {
+    "DEFAULT_SITE": { "description": "Primary site name, e.g. hr.company.com" },
+    "ADMIN_PASSWORD": { "description": "Administrator password, used only by scripts/init-site.sh" },
+    "MARIADB_ROOT_PASSWORD": { "description": "MariaDB root/superuser password, used only once by scripts/init-site.sh — see the note in that script" },
+    "DEVELOPER_MODE": { "description": "0 or 1", "value": "0" },
+    "MAINTENANCE_MODE": { "description": "0 or 1", "value": "0" },
+    "GUNICORN_WORKERS": { "description": "Gunicorn worker process count", "value": "2" },
+    "GUNICORN_THREADS": { "description": "Gunicorn threads per worker (gthread worker class)", "value": "4" }
+  }
+}
