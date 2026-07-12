@@ -9,6 +9,15 @@ cd /home/frappe/frappe-bench
 
 ./scripts/wait-for-services.sh
 
+# release.sh / configure.sh / init-site.sh are the scripts responsible for
+# CREATING common_site_config.json. Never block them on its own existence —
+# doing so is a deadlock, since nothing would ever be allowed to create it.
+case "$(basename "${1:-}")" in
+  release.sh|configure.sh|init-site.sh)
+    exec "$@"
+    ;;
+esac
+
 COMMON_CONFIG="sites/common_site_config.json"
 ATTEMPTS=0
 MAX_ATTEMPTS=30
