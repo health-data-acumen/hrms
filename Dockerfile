@@ -4,7 +4,7 @@
 # deployment metadata (Procfile, app.json, CHECKS, nginx.conf.sigil) and our
 # small operational scripts on top of that already-built image, so that
 # `dokku git:from-image` can find them at the image's WORKDIR.
-ARG BASE_IMAGE
+ARG BASE_IMAGE=ghcr.io/health-data-acumen/hrms
 FROM ${BASE_IMAGE}
 
 USER root
