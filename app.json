@@ -10,5 +10,18 @@
     "MAINTENANCE_MODE": { "description": "0 or 1", "value": "0" },
     "GUNICORN_WORKERS": { "description": "Gunicorn worker process count", "value": "2" },
     "GUNICORN_THREADS": { "description": "Gunicorn threads per worker (gthread worker class)", "value": "4" }
+  },
+  "healthchecks": {
+    "web": [
+      {
+        "type": "startup",
+        "name": "ping",
+        "description": "Checking if Frappe responds to /api/method/ping",
+        "path": "/api/method/ping",
+        "attempts": 12,
+        "wait": 5,
+        "timeout": 5
+      }
+    ]
   }
 }

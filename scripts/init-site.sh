@@ -15,32 +15,44 @@ cd /home/frappe/frappe-bench
 : "${ADMIN_PASSWORD:?Set with: dokku config:set frappe ADMIN_PASSWORD=...}"
 
 # --- Read this before running ---
-# `dokku mariadb:create` provisions ONE database + user, scoped to that
-# database, and that's what DATABASE_URL points at. `bench new-site`
-# normally expects MariaDB *root* credentials so it can CREATE DATABASE /
-# CREATE USER for the new site itself — a scoped user typically can't do
-# that. Pick one before running this script:
+# Frappe/bench assumes the MariaDB database name and username are IDENTICAL
+# for a site. The account Dokku's `mariadb:create` auto-provisions doesn't
+# follow that convention (generic username, service-named database), so it
+# can't be reused directly here -- passing it to `bench new-site` makes
+# bench try to create its own separate database+user instead (what you hit
+# earlier).
 #
-#   (a) [used below] Get the real MariaDB root password for the linked
-#       service and pass it as --mariadb-root-password. bench will then
-#       create its OWN database on the same MariaDB server (not the one
-#       named in DATABASE_URL). Check your dokku-mariadb plugin version's
-#       docs/`dokku mariadb:info frappe-db` output for how to obtain this.
-#   (b) Manually create/grant the site's database yourself via
-#       `dokku mariadb:connect frappe-db`, then create the site with
-#       --no-mariadb-socket and --db-name/--db-password pointed at the
-#       existing DATABASE_URL-provided database instead.
+# The fix: pre-create ONE dedicated db+user pair yourself, where the
+# username equals the database name, using your MariaDB root access. Do
+# this once, manually, before running this script:
 #
-# This script assumes (a). Set MARIADB_ROOT_PASSWORD accordingly, or
-# rewrite the `bench new-site` call below to use approach (b).
+#   dokku mariadb:enter frappe-db
+#   MariaDB> CREATE DATABASE IF NOT EXISTS `hr_site`
+#              CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+#   MariaDB> CREATE USER IF NOT EXISTS 'hr_site'@'%' IDENTIFIED BY 'SOME_STRONG_PASSWORD';
+#   MariaDB> GRANT ALL PRIVILEGES ON `hr_site`.* TO 'hr_site'@'%';
+#   MariaDB> FLUSH PRIVILEGES;
+#   MariaDB> exit
+#
+# Then set SITE_DB_NAME=hr_site and SITE_DB_PASSWORD=SOME_STRONG_PASSWORD
+# via `dokku config:set frappe ...` before running this script.
+#
+# Because we're passing --db-name/--db-password WITHOUT --mariadb-root-password,
+# bench treats the database+user as already existing and skips trying to
+# create them -- it just installs the Frappe schema into it directly.
 
-: "${MARIADB_ROOT_PASSWORD:?Set MARIADB_ROOT_PASSWORD — see the note above before running this script}"
+: "${DATABASE_URL:?DATABASE_URL not set}"
+
+DB_NAME=$(python3 -c "from urllib.parse import urlparse; print(urlparse('${DATABASE_URL}').path)")
+DB_USER=$(python3 -c "from urllib.parse import urlparse; print(urlparse('${DATABASE_URL}').username)")
+DB_PASSWORD=$(python3 -c "from urllib.parse import urlparse; print(urlparse('${DATABASE_URL}').password)")
 
 bench new-site "$DEFAULT_SITE" \
-  --mariadb-root-password "$MARIADB_ROOT_PASSWORD" \
-  --mariadb-user-host-login-scope='%' \
+  --db-name "$DB_NAME" \
+  --db-user "$DB_USER" \
+  --db-password "$DB_PASSWORD" \
   --admin-password "$ADMIN_PASSWORD" \
-  --no-mariadb-socket
+  --mariadb-user-host-login-scope '172.%.%.%'
 
 bench --site "$DEFAULT_SITE" install-app erpnext
 bench --site "$DEFAULT_SITE" install-app hrms

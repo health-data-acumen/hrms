@@ -20,10 +20,11 @@ RUN cp -r /home/frappe/frappe-bench/sites /home/frappe/frappe-bench/sites-seed
 COPY --chown=frappe:frappe scripts/ /home/frappe/frappe-bench/scripts/
 COPY --chown=frappe:frappe Procfile /home/frappe/frappe-bench/Procfile
 COPY --chown=frappe:frappe app.json /home/frappe/frappe-bench/app.json
-COPY --chown=frappe:frappe CHECKS /home/frappe/frappe-bench/CHECKS
 COPY --chown=frappe:frappe nginx.conf.sigil /home/frappe/frappe-bench/nginx.conf.sigil
 
 RUN chmod +x /home/frappe/frappe-bench/scripts/*.sh
+
+EXPOSE 8000
 
 USER frappe
 WORKDIR /home/frappe/frappe-bench

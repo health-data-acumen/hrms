@@ -4,7 +4,7 @@
 set -euo pipefail
 cd /home/frappe/frappe-bench
 
-exec gunicorn \
+exec /home/frappe/frappe-bench/env/bin/gunicorn \
   --chdir=/home/frappe/frappe-bench/sites \
   --bind=0.0.0.0:8000 \
   --workers="${GUNICORN_WORKERS:-2}" \
