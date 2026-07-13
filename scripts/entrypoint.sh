@@ -26,6 +26,14 @@ if [ -d "$SEED_DIR/assets" ]; then
   cp -r "$SEED_DIR/assets/." "$SITES_DIR/assets/"
 fi
 
+# Unlike apps.txt/assets, common_site_config.json holds live state written
+# by `bench set-config` (db_host, redis_*, etc.) — never overwrite it once
+# it exists. Only seed a starting copy on a genuinely fresh/empty volume.
+if [ ! -f "$SITES_DIR/common_site_config.json" ] && [ -f "$SEED_DIR/common_site_config.json" ]; then
+  echo "-----> Seeding sites/common_site_config.json from image (first boot)"
+  cp "$SEED_DIR/common_site_config.json" "$SITES_DIR/common_site_config.json"
+fi
+
 ./scripts/wait-for-services.sh
 
 # release.sh / configure.sh / init-site.sh are the scripts responsible for
