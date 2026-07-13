@@ -43,7 +43,7 @@ cd /home/frappe/frappe-bench
 
 : "${DATABASE_URL:?DATABASE_URL not set}"
 
-DB_NAME=$(python3 -c "from urllib.parse import urlparse; print(urlparse('${DATABASE_URL}').path)")
+DB_NAME=$(python3 -c "from urllib.parse import urlparse; print(urlparse('${DATABASE_URL}').path[1:])")
 DB_USER=$(python3 -c "from urllib.parse import urlparse; print(urlparse('${DATABASE_URL}').username)")
 DB_PASSWORD=$(python3 -c "from urllib.parse import urlparse; print(urlparse('${DATABASE_URL}').password)")
 
@@ -52,7 +52,7 @@ bench new-site "$DEFAULT_SITE" \
   --db-user "$DB_USER" \
   --db-password "$DB_PASSWORD" \
   --admin-password "$ADMIN_PASSWORD" \
-  --mariadb-user-host-login-scope '172.%.%.%'
+  --mariadb-user-host-login-scope '%'
 
 bench --site "$DEFAULT_SITE" install-app erpnext
 bench --site "$DEFAULT_SITE" install-app hrms
