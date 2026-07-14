@@ -21,9 +21,22 @@ if [ -f "$SEED_DIR/apps.txt" ]; then
 fi
 
 if [ -d "$SEED_DIR/assets" ]; then
-  echo "-----> Syncing sites/assets from image"
+  echo "-----> Syncing sites/assets from sites-seed"
   mkdir -p "$SITES_DIR/assets"
   cp -r "$SEED_DIR/assets/." "$SITES_DIR/assets/"
+fi
+
+# frappe_docker's own build relocates the actually-built assets to
+# /home/frappe/frappe-bench/assets (a sibling of sites/, not inside it) and
+# empties sites/assets — specifically because sites/ is expected to be
+# volume-mounted. That path sits outside the Dokku mount, so it's always
+# intact; this is the real source, not sites-seed/assets above (which was
+# already stripped by the time we snapshotted it).
+BENCH_ROOT_ASSETS="/home/frappe/frappe-bench/assets"
+if [ -d "$BENCH_ROOT_ASSETS" ]; then
+  echo "-----> Syncing sites/assets from $BENCH_ROOT_ASSETS"
+  mkdir -p "$SITES_DIR/assets"
+  cp -r "$BENCH_ROOT_ASSETS/." "$SITES_DIR/assets/"
 fi
 
 # Unlike apps.txt/assets, common_site_config.json holds live state written

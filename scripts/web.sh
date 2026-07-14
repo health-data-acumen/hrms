@@ -6,6 +6,7 @@ cd /home/frappe/frappe-bench
 
 exec /home/frappe/frappe-bench/env/bin/gunicorn \
   --chdir=/home/frappe/frappe-bench/sites \
+  --pythonpath=/home/frappe/frappe-bench/scripts \
   --bind=0.0.0.0:8000 \
   --workers="${GUNICORN_WORKERS:-2}" \
   --worker-class=gthread \
@@ -13,4 +14,4 @@ exec /home/frappe/frappe-bench/env/bin/gunicorn \
   --worker-tmp-dir=/dev/shm \
   --timeout=120 \
   --preload \
-  frappe.app:application
+  wsgi:application
