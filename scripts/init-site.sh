@@ -57,6 +57,7 @@ bench new-site "$DEFAULT_SITE" \
 bench --site "$DEFAULT_SITE" install-app erpnext
 bench --site "$DEFAULT_SITE" install-app hrms
 bench --site "$DEFAULT_SITE" install-app crm
+bench --site "$DEFAULT_SITE" install-app telephony
 bench --site "$DEFAULT_SITE" install-app helpdesk
 # bench --site "$DEFAULT_SITE" install-app my_app   # if you added a custom app to apps.json
 
