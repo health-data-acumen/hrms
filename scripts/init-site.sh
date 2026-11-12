@@ -56,9 +56,11 @@ bench new-site "$DEFAULT_SITE" \
 
 bench --site "$DEFAULT_SITE" install-app erpnext
 bench --site "$DEFAULT_SITE" install-app hrms
+bench --site "$DEFAULT_SITE" install-app crm
+bench --site "$DEFAULT_SITE" install-app helpdesk
 # bench --site "$DEFAULT_SITE" install-app my_app   # if you added a custom app to apps.json
 
 bench --site "$DEFAULT_SITE" enable-scheduler
 bench use "$DEFAULT_SITE"
 
-echo "-----> Site $DEFAULT_SITE created, erpnext + hrms installed"
+echo "-----> Site $DEFAULT_SITE created, erpnext + hrms + crm + helpdesk installed"
